@@ -20,6 +20,9 @@ function! s:turbux_command_setting(name, default_value)
   endif
 endfunction
 
+call s:turbux_command_setting("rspec_with_zeus", "zeus rspec")
+call s:turbux_command_setting("cucumber_with_zeus", "zeus cucumber")
+
 call s:turbux_command_setting("rspec", "rspec")
 call s:turbux_command_setting("test_unit", "ruby -Itest")
 call s:turbux_command_setting("turnip", "rspec -rturnip")
@@ -50,10 +53,14 @@ function! s:gsub(str,pat,rep)
 endfunction
 
 function! s:prefix_for_test(file)
-  if a:file =~# '_spec.rb$'
+  if filereadable("./zeus.json") && a:file =~# '_spec.rb$'
+    return g:turbux_command_rspec_with_zeus
+  elseif a:file =~# '_spec.rb$'
     return g:turbux_command_rspec
   elseif a:file =~# '\(\<test_.*\|_test\)\.rb$'
     return g:turbux_command_test_unit
+  elseif filereadable("./zeus.json") && a:file =~# '.feature$'
+    return g:turbux_command_cucumber_with_zeus
   elseif a:file =~# '.feature$'
     if a:file =~# '\<spec/'
       return g:turbux_command_turnip
